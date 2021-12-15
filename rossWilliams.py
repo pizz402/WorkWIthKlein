@@ -1,4 +1,3 @@
-# check last occurrence of any 2char sequence within max length
 import random
 
 import Encoding
@@ -22,26 +21,26 @@ def main(source, randomness):
         while True:
             if finish + length == len(src):  # if true it means the index is outside of the document
                 return length
-            if length == 16:  # so that when we print the binary code the length int would be under 8 bit
-                return length
+            # if length == 16:  # so that when we print the binary code the length int would be under 8 bit
+            #	return length
             if src[start + length] == src[finish + length]:  # check identical chars at these locations
                 length = length + 1
             else:
                 return length  # chars are dissimilar
 
     def updateTable(index, length):
-        if len(src) - index <= 2:  # last 2 chars of source, mustn't use them as start of keys, index +2 doesn't exist
+        if len(src) - index <= 3:
             return
         for x in range(1, length):
-            key = src[index - x] + src[index - x + 1]
+            key = src[index - x] + src[index - x + 1] + src[index - x + 2]
             table.update({key: index - x})
 
     # given a start index i will run backwards attempting to find the offset with the maximal length
     def find(index):  # current index we're at
         finalOff = 0
         finalLength = 0
-        if len(src) - index > 2:  # not 2 last digits
-            key = src[index] + src[index + 1]
+        if len(src) - index > 3:  # not 2 last digits
+            key = src[index] + src[index + 1] + src[index + 2]
             if table.__contains__(key):
                 finalLength = rollForward(table[key], index)
                 finalOff = index - table[key]
@@ -51,17 +50,14 @@ def main(source, randomness):
             if finalLength > 4 and randomness:
                 if random.random() > 0.5:
                     finalLength -= 1
-
-        if finalLength < 3:
-            finalLength = 0
         return finalOff, finalLength
 
     if randomness:
-        binary = open("files/out/singleHash/outBinRand.txt", "w")
-        classic = open("files/out/singleHash/outClaRand.txt", "w")
+        binary = open("files/out/RossWilliams/outBinRand.txt", "w")
+        classic = open("files/out/RossWilliams/outClaRand.txt", "w")
     else:
-        binary = open("files/out/singleHash/outBin.txt", "w")
-        classic = open("files/out/singleHash/outCla.txt", "w")
+        binary = open("files/out/RossWilliams/outBin.txt", "w")
+        classic = open("files/out/RossWilliams/outCla.txt", "w")
     # of off|len
     index = 0
     while index < len(src):
@@ -82,14 +78,14 @@ def main(source, randomness):
     classic.close()
     binary.close()
     if randomness:
-        lengthsFile = open("files/out/singleHash/lengthsRand.txt", "w")
-        offsFile = open("files/out/singleHash/offsRand.txt", "w")
+        lengthsFile = open("files/out/RossWilliams/lengthsRand.txt", "w")
+        offsFile = open("files/out/RossWilliams/offsRand.txt", "w")
     else:
-        lengthsFile = open("files/out/singleHash/lengths.txt", "w")
-        offsFile = open("files/out/singleHash/offs.txt", "w")
-    lengthsFile.write(lengths.__str__())
+        lengthsFile = open("files/out/RossWilliams/lengths.txt", "w")
+        offsFile = open("files/out/RossWilliams/offs.txt", "w")
     offsFile.write(offs.__str__())
     offsFile.close()
+    lengthsFile.write(lengths.__str__())
     lengthsFile.close()
 
 # print(table)
