@@ -7,19 +7,18 @@ def main(source, randomness):
     f = open(source, "r")  # edit path to file
     src = f.read()
     f.close()
-    table = {}
-    # randomness = False  # change to true to allow random choice of table at each
+    table1 = {}
+    table2 = {}
+    # randomness = True  # if True will choose a random table, instead of the maximal one
     # random.seed(10)
     lengths = {}
     offs = [0, 0, 0, 0, 0]
-
-    # random.seed(10)
 
     # will start at index start and finish and will step forward as long as the chars at these indices are identical
     def rollForward(start, finish):
         length = 0
         while True:
-            if finish + length == len(src):  # if true it means the index is outside of the document
+            if finish + length == len(src):  # if true it means the index is outside the document
                 return length
             # if length == 16:  # so that when we print the binary code the length int would be under 8 bit
             #	return length
@@ -29,36 +28,51 @@ def main(source, randomness):
                 return length  # chars are dissimilar
 
     def updateTable(index, length):
-        if len(src) - index <= 3:
+        if len(src) - index <= 4:
             return
         for x in range(1, length):
-            key = src[index - x] + src[index - x + 1] + src[index - x + 2]
-            table.update({key: index - x})
+            key = src[index - x] + src[index - x + 1] + src[index - x + 2] + src[index - x + 3]
+            table2.update({key: table1.get(key)})
+            table1.update({key: index - x})
 
     # given a start index i will run backwards attempting to find the offset with the maximal length
     def find(index):  # current index we're at
-        finalOff = 0
-        finalLength = 0
-        if len(src) - index > 3:  # not 2 last digits
-            key = src[index] + src[index + 1] + src[index + 2]
-            if table.__contains__(key):
-                finalLength = rollForward(table[key], index)
-                finalOff = index - table[key]
-                if finalOff > 35137:
-                    finalLength = 0
-            table.update({key: index})
-            if finalLength > 4 and randomness:
+        off1 = 0
+        len1 = 0
+        off2 = 0
+        len2 = 0
+        if len(src) - index > 4:  # not 1 last digits
+            key = src[index] + src[index + 1] + src[index + 2] + src[index + 3]
+            if table1.get(key) is not None:
+                len1 = rollForward(table1.get(key), index)
+                off1 = index - table1[key]
+            if off1 > 35137:
+                len1 = 0
+            if table2.get(key) is not None:
+                len2 = rollForward(table2.get(key), index)
+                off2 = index - table2[key]
+            if off2 > 35137:
+                len2 = 0
+            if randomness and len1 != 0 and len2 != 0:
                 if random.random() > 0.5:
-                    finalLength -= 1
-        return finalOff, finalLength
+                    len1 = len2
+                    off1 = off2
+            if len2 > len1:
+                len1 = len2
+                off1 = off2
+            table2.update({key: table1.get(key)})
+            table1.update({key: index})
+            if len1 < 3:
+                len1 = 0
+        return off1, len1
 
     if randomness:
-        binary = open("files/out/RossWilliams/outBinRand.txt", "w")
-        classic = open("files/out/RossWilliams/outClaRand.txt", "w")
+        binary = open("files/out/doubleQuad/outBinRand.txt", "w")
+        classic = open("files/out/doubleQuad/outClaRand.txt", "w")
     else:
-        binary = open("files/out/RossWilliams/outBin.txt", "w")
-        classic = open("files/out/RossWilliams/outCla.txt", "w")
-    # of off|len
+        binary = open("files/out/doubleQuad/outBin.txt", "w")
+        classic = open("files/out/doubleQuad/outCla.txt", "w")
+
     index = 0
     while index < len(src):
         findResult = find(index)
@@ -75,19 +89,17 @@ def main(source, randomness):
         else:
             index += 1
         print(index)
+
     classic.close()
     binary.close()
     if randomness:
-        lengthsFile = open("files/out/RossWilliams/lengthsRand.txt", "w")
-        offsFile = open("files/out/RossWilliams/offsRand.txt", "w")
+        lengthsFile = open("files/out/doubleQuad/lengthsRand.txt", "w")
+        offsFile = open("files/out/doubleQuad/offsRand.txt", "w")
     else:
-        lengthsFile = open("files/out/RossWilliams/lengths.txt", "w")
-        offsFile = open("files/out/RossWilliams/offs.txt", "w")
-
+        lengthsFile = open("files/out/doubleQuad/lengths.txt", "w")
+        offsFile = open("files/out/doubleQuad/offs.txt", "w")
     for x in sorted(lengths):
         lengthsFile.write(str(x) + "    " + str(lengths[x]) + "\n")
     offsFile.write(offs.__str__())
     offsFile.close()
     lengthsFile.close()
-
-# print(table)

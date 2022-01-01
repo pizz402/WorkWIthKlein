@@ -28,10 +28,10 @@ def main(source, randomness):
                 return length  # chars are dissimilar
 
     def updateTable(index, length):
-        if len(src) - index <= 3:
+        if len(src) - index <= 5:
             return
         for x in range(1, length):
-            key = src[index - x] + src[index - x + 1] + src[index - x + 2]
+            key = src[index - x] + src[index - x + 1] + src[index - x + 2] + src[index - x + 3] + src[index - x + 4]
             table2.update({key: table1.get(key)})
             table1.update({key: index - x})
 
@@ -41,8 +41,8 @@ def main(source, randomness):
         len1 = 0
         off2 = 0
         len2 = 0
-        if len(src) - index > 3:  # not 1 last digits
-            key = src[index] + src[index + 1] + src[index + 2]
+        if len(src) - index > 5:  # not 1 last digits
+            key = src[index] + src[index + 1] + src[index + 2] + src[index + 3] + src[index + 4]
             if table1.get(key) is not None:
                 len1 = rollForward(table1.get(key), index)
                 off1 = index - table1[key]
@@ -67,11 +67,11 @@ def main(source, randomness):
         return off1, len1
 
     if randomness:
-        binary = open("files/out/doubleRoss/outBinRand.txt", "w")
-        classic = open("files/out/doubleRoss/outClaRand.txt", "w")
+        binary = open("files/out/doublePenta/outBinRand.txt", "w")
+        classic = open("files/out/doublePenta/outClaRand.txt", "w")
     else:
-        binary = open("files/out/doubleRoss/outBin.txt", "w")
-        classic = open("files/out/doubleRoss/outCla.txt", "w")
+        binary = open("files/out/doublePenta/outBin.txt", "w")
+        classic = open("files/out/doublePenta/outCla.txt", "w")
 
     index = 0
     while index < len(src):
@@ -93,11 +93,11 @@ def main(source, randomness):
     classic.close()
     binary.close()
     if randomness:
-        lengthsFile = open("files/out/doubleRoss/lengthsRand.txt", "w")
-        offsFile = open("files/out/doubleRoss/offsRand.txt", "w")
+        lengthsFile = open("files/out/doublePenta/lengthsRand.txt", "w")
+        offsFile = open("files/out/doublePenta/offsRand.txt", "w")
     else:
-        lengthsFile = open("files/out/doubleRoss/lengths.txt", "w")
-        offsFile = open("files/out/doubleRoss/offs.txt", "w")
+        lengthsFile = open("files/out/doublePenta/lengths.txt", "w")
+        offsFile = open("files/out/doublePenta/offs.txt", "w")
     for x in sorted(lengths):
         lengthsFile.write(str(x) + "    " + str(lengths[x]) + "\n")
     offsFile.write(offs.__str__())

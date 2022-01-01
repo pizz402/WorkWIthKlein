@@ -21,7 +21,7 @@ def main(source, randomness):
         while True:
             if finish + length == len(src):  # if true it means the index is outside of the document
                 return length
-            #if length == 16:  # so that when we print the binary code the length int would be under 8 bit
+            # if length == 16:  # so that when we print the binary code the length int would be under 8 bit
             #	return length
             if src[start + length] == src[finish + length]:  # check identical chars at these locations
                 length = length + 1
@@ -47,18 +47,18 @@ def main(source, randomness):
             if table1.get(key) is not None:
                 len1 = rollForward(table1.get(key), index)
                 off1 = index - table1[key]
-                #if off1 > 4095:
-                #	len1 = 0
+                if off1 > 35137:
+                    len1 = 0
             if table2.get(key) is not None:
                 len2 = rollForward(table2.get(key), index)
                 off2 = index - table2[key]
-                #if off2 > 4095:
-                #	len2 = 0
+                if off2 > 35137:
+                    len2 = 0
             if randomness and len1 != 0 and len2 != 0:
                 if random.random() > 0.5:
                     len1 = len2
                     off1 = off2
-            if not randomness and len2 > len1:
+            if len2 > len1:
                 len1 = len2
                 off1 = off2
             table2.update({key: table1.get(key)})
@@ -99,7 +99,8 @@ def main(source, randomness):
     else:
         lengthsFile = open("files/out/doubleHash/lengths.txt", "w")
         offsFile = open("files/out/doubleHash/offs.txt", "w")
+    for x in sorted(lengths):
+        lengthsFile.write(str(x) + "    " + str(lengths[x]) + "\n")
     offsFile.write(offs.__str__())
     offsFile.close()
-    lengthsFile.write(lengths.__str__())
     lengthsFile.close()

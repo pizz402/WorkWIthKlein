@@ -16,7 +16,7 @@ def fromPaperBin(destination, offLen, char):
             str1 = "11" + "{0:011b}".format(offLen[0] - 321)  # 11B_11(d-321)
             ret = 3
         else:
-            str1 = "110" + "{0:015b}".format(offLen[0] - 2369)  # 111B_15(d-2369)
+            str1 = "10" + "{0:015b}".format(offLen[0] - 2369)  # 111B_15(d-2369) max off is 35,137
             ret = 4
         str2 = ""
         if offLen[1] == 2:
@@ -28,7 +28,7 @@ def fromPaperBin(destination, offLen, char):
         destination.write(str1)
         destination.write(str2)
     else:
-        destination.write(char)
+        destination.write("0" + "{0:08b}".format(ord("I")))
         ret = 0
     return ret
 
