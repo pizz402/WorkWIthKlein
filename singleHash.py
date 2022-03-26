@@ -4,7 +4,7 @@ import random
 import Encoding
 
 
-def main(source, randomness):
+def main(source, randomness,adaptive):
     f = open(source, "r")  # edit path to file
     src = f.read()
     f.close()
@@ -13,6 +13,7 @@ def main(source, randomness):
     # random.seed(10)
     lengths = {}
     offs = [0, 0, 0, 0, 0]
+    huffman= ["1", "01" , "001", "0001", "0000"]
 
     # random.seed(10)
 
@@ -48,9 +49,9 @@ def main(source, randomness):
                 if finalOff > 35137:
                     finalLength = 0
             table.update({key: index})
-            if finalLength > 4 and randomness:
-                if random.random() > 0.5:
-                    finalLength -= 1
+            #if finalLength > 4 and randomness:
+            #    if random.random() > 0.5:
+            #        finalLength -= 1
 
         if finalLength < 3:
             finalLength = 0
@@ -66,8 +67,21 @@ def main(source, randomness):
     index = 0
     while index < len(src):
         findResult = find(index)
-        offs[Encoding.fromPaperBin(binary, findResult, src[index])] += 1
-        Encoding.readable(classic, findResult, src[index])
+        if adaptive:
+            if randomness and random.random() > 0.5 and findResult[1] > 0:  # encoding call
+                offs[Encoding.adaptive(binary, [int(findResult[0] + 8), findResult[1] + 1], src[index], offs)] += 1
+                Encoding.readable(classic, [int(findResult[0] + 8), findResult[1] + 1], src[index])
+            else:
+                offs[Encoding.adaptive(binary, findResult, src[index], offs)] += 1
+                Encoding.readable(classic, findResult, src[index])
+        else:
+            if randomness and random.random() > 0.5 and findResult[1] > 0:  # encoding call
+                offs[Encoding.knownInAdvance(binary, [int(findResult[0] + 8), findResult[1] + 1], src[index], huffman)] += 1
+                Encoding.readable(classic, [int(findResult[0] + 8), findResult[1] + 1], src[index])
+            else:
+                offs[Encoding.knownInAdvance(binary, findResult, src[index], huffman)] += 1
+                Encoding.readable(classic, findResult, src[index])
+
         if findResult[1] > 0:
             index += findResult[1]
             updateTable(index, findResult[1])

@@ -3,7 +3,7 @@ import random
 import Encoding
 
 
-def main(source, randomness):
+def main(source, randomness,adaptive):
     f = open(source, "r")  # edit path to file
     src = f.read()
     f.close()
@@ -13,6 +13,8 @@ def main(source, randomness):
     # random.seed(10)
     lengths = {}
     offs = [0, 0, 0, 0, 0]
+    huffman= ["0000", "1" , "01", "001", "0001"]
+    bias = 0
 
     # will start at index start and finish and will step forward as long as the chars at these indices are identical
     def rollForward(start, finish):
@@ -53,10 +55,10 @@ def main(source, randomness):
                 off2 = index - table2[key]
             if off2 > 35137:
                 len2 = 0
-            if randomness and len1 != 0 and len2 != 0:
-                if random.random() > 0.5:
-                    len1 = len2
-                    off1 = off2
+            #if randomness and len1 != 0 and len2 != 0:
+            #    if random.random() > 0.5:
+            #        len1 = len2
+            #        off1 = off2
             if len2 > len1:
                 len1 = len2
                 off1 = off2
@@ -76,8 +78,23 @@ def main(source, randomness):
     index = 0
     while index < len(src):
         findResult = find(index)
-        offs[Encoding.fromPaperBin(binary, findResult, src[index])] += 1
-        Encoding.readable(classic, findResult, src[index])
+        if adaptive:
+            if randomness and random.random() > 0.5 and findResult[1] > 0:  # encoding call
+                offs[Encoding.adaptive(binary, [int(findResult[0] + 8), findResult[1] + 1], src[index], offs)] += 1
+                Encoding.readable(classic, [int(findResult[0] + 8), findResult[1] + 1], src[index])
+            else:
+                offs[Encoding.adaptive(binary, findResult, src[index], offs)] += 1
+                Encoding.readable(classic, findResult, src[index])
+        else:
+            if randomness and random.random() > 0.5 and findResult[1] > 0:  # encoding call
+                offs[Encoding.knownInAdvance(binary, [int(findResult[0] + bias), findResult[1] + 1], src[index], huffman)] += 1
+                Encoding.readable(classic, [int(findResult[0] + bias), findResult[1] + 1], src[index])
+                bias = (bias*2) % 16 + 1
+            else:
+                offs[Encoding.knownInAdvance(binary, findResult, src[index], huffman)] += 1
+                Encoding.readable(classic, findResult, src[index])
+                bias = (bias * 2) % 16
+
         if findResult[1] > 0:
             index += findResult[1]
             updateTable(index, findResult[1])
